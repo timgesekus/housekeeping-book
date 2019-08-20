@@ -1,9 +1,10 @@
 #Housekeeping book
 
 ## Goals
-* Create a housekeeping up for my family
-* Evolve it from cli use to web/android enabled
-* Learn pure functional programming using scalaz
+* Create a housekeeping app for my family
+* Evolve it from cli  to web/android enabled
+* Learn pure functional programming using 
+* Learn zio
 * Learn to code android apps again
 
 ## Roles
@@ -15,6 +16,6 @@ As a user i want to create a new housekeeping book to monitor my expenses
 As a user i want to add an entry to the book
 
 ## Tasklist
-- [] Setup using sbt
+- [x] Setup using sbt
 - 
 
