@@ -21,8 +21,12 @@ libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.28"
 //  "org.scalaz"     %% "scalaz-ioeffect-cats" % "2.10.1"
 //)
 
-libraryDependencies += "dev.zio" %% "zio" % "1.0.0-RC11-1"
-libraryDependencies += "dev.zio" %% "zio-nio" % "0.1.2-SNAPSHOT"
+libraryDependencies ++= Seq (
+  "dev.zio" %% "zio" % "1.0.0-RC11-1",
+  "dev.zio" %% "zio-nio" % "0.1.2-SNAPSHOT",
+  "io.argonaut" %% "argonaut-scalaz" % "6.2.3" ,
+  "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+)
 
 
 //val derivingVersion = "1.0.0"

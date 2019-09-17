@@ -18,7 +18,7 @@ trait Cli[F[_]] {
 
 
 
-final class CliModule[F[_]: Monad](B: Books[F])
+/* final class CliModule[F[_]: Monad](B: Books[F])
 extends Cli[F] {
     def createBook(title: String): F[Book] = B.addBook(Book(BookId(1),Title(title),empty))
-}
+} */

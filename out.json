@@ -1,0 +1,15 @@
+[
+  {
+    "id" : {
+      "id" : 1
+    },
+    "title" : {
+      "title" : "Hallo"
+    },
+    "entries" : [
+      {
+        "id" : 1
+      }
+    ]
+  }
+]

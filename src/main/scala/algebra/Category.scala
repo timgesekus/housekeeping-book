@@ -1,16 +1,14 @@
-package net
-package gesekus
-package housekeeping
-package algebra
-package category 
+package net.gesekus.housekeeping.algebra.category
 
 
 import java.lang.String
 import scala.Int
+import argonaut.CodecJson
+import argonaut.Argonaut._
 
 final case class CategoryId(id: Int)
-final case class Title(test: String)
-final case class Category(id: CategoryId, title: Title )
+final case class CategoryTitle(title: String)
+final case class Category(id: CategoryId, title: CategoryTitle )
 
 trait Categories[F[_]] {
     def getCategory(id: CategoryId) : F[Category]
@@ -18,3 +16,7 @@ trait Categories[F[_]] {
     def updateCategory (Category: Category) : F[Category]
     def deleteCategory (id: CategoryId) : F[Category]
 }
+
+object Category {
+
+  }
