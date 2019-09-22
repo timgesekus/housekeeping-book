@@ -28,7 +28,11 @@ trait BookStore {
 
 object BookStore extends BookStore {
 
-  val init = BookServiceState(Book.init(BookId(1), BookTitle(" Book")), NextIds(CategoryId(1), EntryId(1)))
+  def init(bookId: BookId, title: BookTitle, firstCategeryId: CategoryId, firstEntryId: EntryId) = {
+    val book = Book.init(bookId, title)
+    val nextIds =  NextIds(firstCategeryId, firstEntryId)
+    BookServiceState(book, nextIds)
+  }
 
   val bookL =
     Lens.lensu[BookServiceState, Book]((bookServiceState, newVal) => bookServiceState.copy(book = newVal), _.book)
@@ -43,11 +47,10 @@ object BookStore extends BookStore {
     Lens.lensu[NextIds, CategoryId]((nextIds, newVal) => nextIds.copy(categoryId = newVal), _.categoryId)
 
   def entryL(entryId: EntryId) = Lens.mapVLens[EntryId, Entry](entryId)
-  val empty                    = BookServiceState(Book.init(BookId(1), BookTitle("Anna")), NextIds(CategoryId(1), EntryId(1)))
 
   def toOpLens[A, B](lens: Lens[A, B]): Lens[Option[A], Option[B]] = ???
 
-  def checkIfCategoriesExist(categoryIds: Set[CategoryId]): BookServiceES[Boolean] = {
+  private def checkIfCategoriesExist(categoryIds: Set[CategoryId]): BookServiceES[Boolean] = {
     import BookLens.categoriesL
     val stateFunc: BookServiceS[BookServiceStateType[Boolean]] = for {
       categories <- bookL >=> categoriesL
@@ -56,7 +59,7 @@ object BookStore extends BookStore {
     BookServiceES.apply(stateFunc)
   }
 
-  def checkIfEntriesExists(entryIds: Set[EntryId]): BookServiceES[Boolean] = {
+  private def checkIfEntriesExists(entryIds: Set[EntryId]): BookServiceES[Boolean] = {
     import BookLens.entriesL
     val stateFunc: BookServiceS[BookServiceStateType[Boolean]] = for {
       entries  <- bookL >=> entriesL

@@ -12,20 +12,28 @@ import scalaz.Maybe.Empty
 import net.gesekus.housekeeping.algebra._
 import bookstore.BookStore._
 import net.gesekus.housekeeping.algebra.category.{Category, CategoryId, CategoryTitle}
+import net.gesekus.housekeeping.algebra.entry.EntryId
 
 class BookServiceTest extends FlatSpec {
-  "A BookStore" should "create an empty BookStore" in {
-    val bookId =  BookId(1)
-    val bookTitle = BookTitle("TestBook")
-    val emptyBook = Book.init( bookId, bookTitle)
-    assert (emptyBook.id === bookId )
-    assert (emptyBook.title === bookTitle)
-    assert (emptyBook.entries.isEmpty)
-    assert (emptyBook.categories.isEmpty)
+  val firstCategoryId = CategoryId(1)
+  val firstEntryId = EntryId(1)
+  val emptyBookTitle = BookTitle("TestBook")
+  val emptyBookId = BookId(1)
 
+  val emptyBookStore = BookStore.init(emptyBookId, emptyBookTitle, firstCategoryId , firstEntryId )
+
+  "A BookStore" should "create an empty BookStore" in {
+    val state = BookStore.init(emptyBookId, emptyBookTitle, firstCategoryId , firstEntryId )
+    assert (state.book.id === emptyBookId )
+    assert (state.book.title === emptyBookTitle)
+    assert (state.book.entries.isEmpty)
+    assert (state.book.categories.isEmpty)
+    assert (state.nextIds.categoryId === firstCategoryId)
+    assert (state.nextIds.entryId === firstEntryId)
   }
+
   it should "have a new entry after adding one" in {
-    val state = BookStore.empty
+    val state = emptyBookStore
     val newEntry = entry.Entry(entry.EntryId(0), entry.EntryTitle("Entry Title"), 10.0, LocalDateTime.now(), Set[CategoryId]())
     val result = addEntry(BookId(1),newEntry).run.run(state)
     val newState = result._1
@@ -33,7 +41,7 @@ class BookServiceTest extends FlatSpec {
     assert (addedEntryEt.isRight)
     addedEntryEt match {
       case \/-(addedEntry) => {
-        assert (addedEntry.id.id == 1)
+        assert (addedEntry.id === firstEntryId)
         assert (addedEntry.title.title == "Entry Title")
         assert (newState.book.entries.length == 1)
         assert (newState.book.categories.length == 0)
@@ -45,7 +53,7 @@ class BookServiceTest extends FlatSpec {
   }
 
   it should "fail when adding entry with non existing categories" in {
-    val state = BookStore.empty
+    val state = emptyBookStore
     val newEntry = entry.Entry(entry.EntryId(0), entry.EntryTitle("Entry Title"), 10.0, LocalDateTime.now(), Set[CategoryId](CategoryId(2)))
     val result = addEntry(BookId(1),newEntry).run.run(state)
     val newState = result._1
@@ -58,7 +66,7 @@ class BookServiceTest extends FlatSpec {
     }
   }
   it should "have a new category after adding one" in {
-    val state = BookStore.empty
+    val state = emptyBookStore
     val newCategory = Category(CategoryId(0),CategoryTitle("Category Title"))
     val result = addCategory(BookId(1),newCategory).run(state)
     val newState = result._1
@@ -72,7 +80,7 @@ class BookServiceTest extends FlatSpec {
     }
   }
   it should "fail on adding a category that doesn't exist" in {
-    val state = BookStore.empty
+    val state = emptyBookStore
     val newEntry = entry.Entry(entry.EntryId(0), entry.EntryTitle("Entry Title"), 10.0, LocalDateTime.now(), Set())
     val result = addEntry(BookId(1),newEntry).run.run(state)
     val newState = result._1
@@ -93,7 +101,7 @@ class BookServiceTest extends FlatSpec {
   }
 
   it should "fail on adding a category to an entry that doesn't exist" in {
-    val state = BookStore.empty
+    val state = emptyBookStore
     val newEntry = entry.Entry(entry.EntryId(0), entry.EntryTitle("Entry Title"), 10.0, LocalDateTime.now(), Set[CategoryId](CategoryId(2)))
     val result = addEntry(BookId(1),newEntry).run.run(state)
     val newState = result._1
