@@ -52,7 +52,7 @@ class BookServiceTest extends FlatSpec {
     val addedEntryEt = result._2
     addedEntryEt match {
       case -\/(e) => {
-        assert (e.getMessage == "Not all")
+        assert (e.getMessage == "At least one category did not exist")
       }
       case \/-(_) => assert(false)
     }
@@ -69,6 +69,42 @@ class BookServiceTest extends FlatSpec {
         assert (newState.book.categories.length == 1)
       }
       case -\/(_) => assert(false)
+    }
+  }
+  it should "fail on adding a category that doesn't exist" in {
+    val state = BookStore.empty
+    val newEntry = entry.Entry(entry.EntryId(0), entry.EntryTitle("Entry Title"), 10.0, LocalDateTime.now(), Set())
+    val result = addEntry(BookId(1),newEntry).run.run(state)
+    val newState = result._1
+    val addedEntryEt = result._2
+    addedEntryEt  match {
+      case \/-(addedEntry) => {
+        val addCategoriesResult = addCategoriesToEntry(addedEntry.id,Set(CategoryId(5))).run.run(newState)
+        val stateAfterAdd = addCategoriesResult._1
+        val changedEntryEt = addCategoriesResult._2
+        changedEntryEt match {
+          case -\/(e) => {
+            assert (e.getMessage == "At least one category did not exist")
+          }
+          case \/-(_) => assert(false)
+        }  }
+      case -\/(_) => assert(false)
+    }
+  }
+
+  it should "fail on adding a category to an entry that doesn't exist" in {
+    val state = BookStore.empty
+    val newEntry = entry.Entry(entry.EntryId(0), entry.EntryTitle("Entry Title"), 10.0, LocalDateTime.now(), Set[CategoryId](CategoryId(2)))
+    val result = addEntry(BookId(1),newEntry).run.run(state)
+    val newState = result._1
+    val addCategoriesResult = addCategoriesToEntry(entry.EntryId(5),Set()).run.run(newState)
+    val stateAfterAdd = addCategoriesResult._1
+    val changedEntryEt = addCategoriesResult._2
+    changedEntryEt match {
+      case -\/(e) => {
+        assert (e.getMessage == "At least one entry did not exist")
+      }
+      case \/-(_) => assert(false)
     }
   }
 }
