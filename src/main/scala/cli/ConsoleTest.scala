@@ -1,8 +1,12 @@
 package net
+
 package gesekus
+
 package housekeeping
+
 package cli
 
+/*
 import zio._
 import java.nio.file.Paths
 
@@ -29,15 +33,15 @@ import argonaut._
 
 import net.gesekus.housekeeping.algebra.category.CategoryId
 
-
-object MyApp  {
- /*
+ */
+object MyApp {
+  /*
  extends App {
   type Program[A] = ZIO[Console with BookStore, Throwable, A]
 
   def run(args: List[String]) =
     myAppLogic.provide(new Console.Live with BookStore.Live).fold(_ => 1, _ => 0)
-  
+
   val myAppLogic = for {
        bookStoreJson <- bookstore.readBookStore("bookstore.json").onError(err => putStr(s"Laden hat nicht geklappt ${err.prettyPrint}"))
        books         <- ZIO.effect(BookStoreJson.fromJson(bookStoreJson))
@@ -51,5 +55,5 @@ object MyApp  {
     val newBook = net.gesekus.housekeeping.algebra.book.Book(BookId(1), BookTitle("Hallo"), just(NonEmptyList(EntryId(1))),just(NonEmptyList(CategoryId(1))))
     newBook :: books
   }
-*/
- }
+ */
+}

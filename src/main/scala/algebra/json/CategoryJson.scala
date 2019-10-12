@@ -1,8 +1,8 @@
 package net.gesekus.housekeeping.algebra.json
 
-import argonaut.Argonaut.{casecodec1, casecodec2}
+import argonaut.Argonaut.{ casecodec1, casecodec2 }
 import argonaut.CodecJson
-import net.gesekus.housekeeping.algebra.category.{Category, CategoryId, CategoryTitle}
+import net.gesekus.housekeeping.algebra.category.{ Category, CategoryId, CategoryTitle }
 
 object CategoryJson {
   implicit def categoryIdCodec: CodecJson[CategoryId] =

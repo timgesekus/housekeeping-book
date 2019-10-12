@@ -1,11 +1,10 @@
 package bookstore
 
+import java.io.{ File, IOException, PrintWriter }
+
 import zio.{ Task, UIO, ZIO }
+
 import scala.io.Source
-import java.io.IOException
-import java.io.BufferedWriter
-import java.io.File
-import java.io.PrintWriter
 
 trait BookStore extends Serializable {
   val bookStore: BookStore.Service[Any]
@@ -14,8 +13,8 @@ trait BookStore extends Serializable {
 object BookStore extends Serializable {
 
   trait Service[R] {
-    def readBookStore(bookStoreFileName: String): ZIO[R,Throwable,String]
-    def writeBookStore(bookStoreFileName: String, bookStoreJson: String): ZIO[R,Throwable,Unit]
+    def readBookStore(bookStoreFileName: String): ZIO[R, Throwable, String]
+    def writeBookStore(bookStoreFileName: String, bookStoreJson: String): ZIO[R, Throwable, Unit]
   }
 
   trait Live extends BookStore {

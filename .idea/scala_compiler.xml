@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <profile name="sbt 1" modules="Housekeeping book,housekeeping-book_1172" />
+    <profile name="sbt 1" modules="housekeeping-book_1172" />
+    <profile name="sbt 2" modules="Housekeeping book">
+      <option name="uncheckedWarnings" value="true" />
+      <option name="explainTypeErrors" value="true" />
+      <parameters>
+        <parameter value="-language:_" />
+        <parameter value="-Ywarn-value-discard" />
+        <parameter value="-Ywarn-numeric-widen" />
+        <parameter value="-Ypartial-unification" />
+        <parameter value="-Xlog-free-terms" />
+        <parameter value="-Xlog-free-types" />
+        <parameter value="-Xlog-reflective-calls" />
+        <parameter value="-Yrangepos" />
+        <parameter value="-Ywarn-unused:explicits,patvars,imports,privates,locals,implicits" />
+        <parameter value="-opt:l:method,inline" />
+        <parameter value="-opt-inline-from:scalaz.**" />
+      </parameters>
+    </profile>
   </component>
 </project>

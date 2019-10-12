@@ -1,12 +1,11 @@
 package net.gesekus.housekeeping.algebra.json
 
 import java.time.LocalDateTime
-import net.gesekus.housekeeping.algebra.json.CategoryJson.categoryIdCodec
-import argonaut.Argonaut.{casecodec1, casecodec5, jEmptyObject, jString}
+
+import argonaut.Argonaut.{ casecodec1, casecodec5, jString }
 import argonaut.CodecJson
-import net.gesekus.housekeeping.algebra.category.CategoryId
-import net.gesekus.housekeeping.algebra.entry.{Entry, EntryId, EntryTitle}
-import scalaz.{Maybe, NonEmptyList}
+import net.gesekus.housekeeping.algebra.entry.{ Entry, EntryId, EntryTitle }
+import net.gesekus.housekeeping.algebra.json.CategoryJson.categoryIdCodec
 
 object EntryJson {
   implicit def LocalDateTimeCodecJson: CodecJson[LocalDateTime] =

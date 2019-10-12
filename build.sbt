@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.12.8"
+ThisBuild / scalaVersion := "2.12.9"
 ThisBuild / organization := "net.gesekus"
 
 //val catsVersion = "2.0.0-RC1" // depends on cats 2.0.0-RC1
@@ -39,23 +39,23 @@ libraryDependencies ++= Seq (
 //  "org.scalaz" %% "scalaz-deriving-jsonformat" % derivingVersion
 //)
 
-//scalacOptions ++= Seq(
-//  "-language:_",
-//  "-unchecked",
- // "-explaintypes",
-//  "-Ywarn-value-discard",
- // "-Ywarn-numeric-widen",
-//  "-Ypartial-unification",
-//  "-Xlog-free-terms",
-//  "-Xlog-free-types",
-//  "-Xlog-reflective-calls",
-//  "-Yrangepos",
+scalacOptions ++= Seq(
+  "-language:_",
+  "-unchecked",
+  "-explaintypes",
+  "-Ywarn-value-discard",
+  "-Ywarn-numeric-widen",
+  "-Ypartial-unification",
+  "-Xlog-free-terms",
+  "-Xlog-free-types",
+  "-Xlog-reflective-calls",
+  "-Yrangepos",
   //"-Yno-imports",
   //"-Yno-predef",
- // "-Ywarn-unused:explicits,patvars,imports,privates,locals,implicits",
- // "-opt:l:method,inline",
- // "-opt-inline-from:scalaz.**"
-//)
+  "-Ywarn-unused:explicits,patvars,imports,privates,locals,implicits",
+  "-opt:l:method,inline",
+  "-opt-inline-from:scalaz.**"
+)
 
 
 lazy val housekeepingbook = (project in file("."))

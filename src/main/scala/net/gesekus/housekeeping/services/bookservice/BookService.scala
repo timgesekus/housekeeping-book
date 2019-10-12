@@ -21,30 +21,25 @@ final case class CategoryAdded(bookId: BookId, category: Category)              
 final case class EntryAddedToCategory(bookId: BookId, entryId: EntryId, categoryId: CategoryId) extends BookEvents
 
 trait BookStore {
-  def addEntry(bookId: BookId, entry: Entry): BookServiceES[Entry]
-  def addCategory(bookId: BookId, category: Category): BookServiceES[Category]
+  def addEntry(entry: Entry): BookServiceES[Entry]
+
+  def addCategory(category: Category): BookServiceES[Category]
   def addCategoriesToEntry(entryId: EntryId, categoryIds: Set[CategoryId]): BookServiceES[Entry]
+
+  def removeEntry(entryId: EntryId): BookServiceES[Entry]
+
+  def removeCategoriesFromEntry(entryId: EntryId, categoryIds: Set[CategoryId]): BookServiceES[Entry]
 }
 
 object BookStore extends BookStore {
 
-  def init(bookId: BookId, title: BookTitle, firstCategeryId: CategoryId, firstEntryId: EntryId) = {
+  def init(bookId: BookId, title: BookTitle) = {
     val book = Book.init(bookId, title)
-    val nextIds =  NextIds(firstCategeryId, firstEntryId)
-    BookServiceState(book, nextIds)
+    BookServiceState(book)
   }
 
   val bookL =
     Lens.lensu[BookServiceState, Book]((bookServiceState, newVal) => bookServiceState.copy(book = newVal), _.book)
-
-  val nextIdsL = Lens
-    .lensu[BookServiceState, NextIds]((bookServiceState, newVal) => bookServiceState.copy(nextIds = newVal), _.nextIds)
-
-  val nextEntryIdL = nextIdsL >=> Lens
-    .lensu[NextIds, EntryId]((nextIds, newVal) => nextIds.copy(entryId = newVal), _.entryId)
-
-  val nextCategoryIdL = nextIdsL >=>
-    Lens.lensu[NextIds, CategoryId]((nextIds, newVal) => nextIds.copy(categoryId = newVal), _.categoryId)
 
   def entryL(entryId: EntryId) = Lens.mapVLens[EntryId, Entry](entryId)
 
@@ -68,45 +63,84 @@ object BookStore extends BookStore {
     BookServiceES.apply(stateFunc)
   }
 
-  def addCategories(categoriesToAdd: Set[CategoryId]): Entry => Entry = EntryLens.categoriesL.mod(oldCats => (categoriesToAdd ++ oldCats),_)
+  def addCategories(categoriesToAdd: Set[CategoryId]): Entry => Entry =
+    EntryLens.categoriesL.mod(oldCats => (categoriesToAdd ++ oldCats), _)
+
+  def removeCategories(categoriesToRemove: Set[CategoryId]): Entry => Entry =
+    EntryLens.categoriesL.mod(oldCats => (oldCats -- categoriesToRemove), _)
 
   def addCategoriesToEntry(entryId: EntryId, categoryIds: Set[CategoryId]): BookServiceES[Entry] = {
     import BookLens.entriesL
-    import EntryLens.{ categoriesL => entryCategoriesL }
-    import BookServiceES.liftS
-    import BookServiceES.liftE
+    import BookServiceES.{ liftE, liftS }
     for {
-      _ <- checkIfEntriesExists(Set[EntryId](entryId))
-      _ <- checkIfCategoriesExist(categoryIds)
-      newEntryOp <- (bookL >=> entriesL >=> entryL(entryId)).mods(addCategories(categoryIds).lift)|> liftS
-      newEntry <- Maybe.fromOption(newEntryOp).toRight[Throwable](new Exception("Cloud nod add entries")) |> liftE[Entry]
+      _          <- checkIfEntriesExists(Set[EntryId](entryId))
+      _          <- checkIfCategoriesExist(categoryIds)
+      newEntryOp <- (bookL >=> entriesL >=> entryL(entryId)).mods(addCategories(categoryIds).lift) |> liftS
+      newEntry   <- Maybe.fromOption(newEntryOp).toRight[Throwable](new Exception("Cloud nod add entries")) |> liftE
     } yield newEntry
   }
 
-  def addEntry(bookId: BookId, entry: Entry): DisjunctionT[BookServiceS, Throwable, Entry] = {
+  def addEntry(entry: Entry): DisjunctionT[BookServiceS, Throwable, Entry] = {
     import BookLens.entriesL
-    import EntryLens._
     import BookServiceES._
     for {
       entryCategories <- entry.categories |> liftV
       _               <- checkIfCategoriesExist(entryCategories)
-      nextEntryId     <- nextEntryIdL.st |> BookServiceES.liftS
-      _               <- (nextEntryIdL >=> idValL).mods(_ + 1) |> BookServiceES.liftS
-      nextEntry       <- idL.set(entry, nextEntryId) |> liftV
-      _               <- (bookL >=> entriesL >=> entryL(nextEntryId)).mods(_ => nextEntry.some) |> liftS
-    } yield nextEntry
+      _               <- (bookL >=> entriesL >=> entryL(entry.id)).mods(_ => entry.some) |> liftS
+    } yield entry
 
   }
 
-  def addCategory(bookId: BookId, category: Category): BookServiceES[Category] = {
+  def addCategory(category: Category): BookServiceES[Category] = {
     import BookLens.categoriesL
-    import CategoryLens._
+    import BookServiceES._
+
+    for {
+      _ <- (bookL >=> categoriesL >=> Lens.mapVLens(category.id)).mods(_ => category.some) |> liftS
+    } yield category
+  }
+
+  def removeEntry(entryId: EntryId): BookServiceES[Entry] = {
+    import BookLens.entriesL
     import BookServiceES._
     for {
-      nextCategoryId <- nextCategoryIdL.st |> liftS
-      _              <- (nextCategoryIdL >=> valIdL).mods(_ + 1) |> liftS
-      nextCategory   <- idL.set(category, nextCategoryId) |> liftV
-      _              <- (bookL >=> categoriesL >=> Lens.mapVLens(nextCategoryId)).mods(_ => nextCategory.some) |> liftS
-    } yield nextCategory
+      _            <- checkIfEntriesExists(Set(entryId))
+      removedEntry <- (bookL >=> entriesL).at(entryId).st |> liftS
+      _            <- (bookL >=> entriesL -= entryId) |> liftS
+    } yield removedEntry
   }
+
+  def removeCategoriesFromEntry(entryId: EntryId, categoryIds: Set[CategoryId]): BookServiceES[Entry] = {
+    import BookLens.entriesL
+    import BookServiceES._
+    for {
+      _          <- checkIfEntriesExists(Set(entryId))
+      newEntryOp <- (bookL >=> entriesL >=> entryL(entryId)).mods(removeCategories(categoryIds).lift) |> liftS
+      newEntry <- Maybe
+                   .fromOption(newEntryOp)
+                   .toRight[Throwable](new Exception("Could not remove categories")) |> liftE[Entry]
+    } yield newEntry
+  }
+
+  def removeCategoriesFromAllEntries(categoryId: CategoryId): BookServiceES[Category] =
+    BookServiceES.liftS(State(s => {
+      val entryIds = s.book.entries.keys
+      val newState = entryIds.foldLeft(s)(
+        (oldState, entryId) => removeCategoriesFromEntry(entryId, Set(categoryId)).run.exec(oldState)
+      )
+
+      (newState, null)
+    }))
+
+  def removeCategory(categoryId: CategoryId): BookServiceES[Category] = {
+    import BookLens.categoriesL
+    import BookServiceES._
+    for {
+      _               <- checkIfCategoriesExist(Set(categoryId))
+      removedCategory <- (bookL >=> categoriesL).at(categoryId).st |> liftS
+      _               <- (bookL >=> categoriesL -= categoryId) |> liftS
+      _               <- removeCategoriesFromAllEntries(categoryId)
+    } yield removedCategory
+  }
+
 }

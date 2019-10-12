@@ -3,6 +3,5 @@
 target
 .bloop
 .metals
-.idea
+.idea\
 .idea/libraries
-.idea/libraries/sbt__dev_zio_zio_interop_java_2_12_1_1_0_0_RC3_jar.xml
