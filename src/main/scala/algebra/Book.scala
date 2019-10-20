@@ -5,7 +5,7 @@ import net.gesekus.housekeeping.algebra.entry.{ Entry, EntryId }
 import scalaz.{ Maybe, NonEmptyList }
 import zio.Task
 
-final case class BookId(id: Int)
+final case class BookId(id: String)
 final case class BookTitle(title: String)
 final case class Book(id: BookId, title: BookTitle, entries: Map[EntryId, Entry], categories: Map[CategoryId, Category])
 

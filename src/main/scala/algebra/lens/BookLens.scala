@@ -6,9 +6,9 @@ import net.gesekus.housekeeping.algebra.entry.{ Entry, EntryId }
 import scalaz.Lens
 
 object BookLens {
-  def idL    = Lens.lensu[Book, BookId]((book, newVal) => book.copy(id = newVal), _.id)
+  def idL = Lens.lensu[Book, BookId]((book, newVal) => book.copy(id = newVal), _.id)
   def titleL = Lens.lensu[Book, BookTitle]((book, newVal) => book.copy(title = newVal), _.title)
-  def valIdL = Lens.lensu[BookId, Int]((bookId, newVal) => bookId.copy(id = newVal), _.id)
+  def valIdL: Lens[BookId, String] = Lens.lensu((bookId, newVal) => bookId.copy(id = newVal), _.id)
 
   def entriesL =
     Lens.lensu[Book, Map[EntryId, Entry]]((entries, newVal) => entries.copy(entries = newVal), _.entries)

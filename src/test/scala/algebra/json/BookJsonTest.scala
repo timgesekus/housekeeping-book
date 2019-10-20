@@ -10,7 +10,7 @@ import json.BookJson._
 
 class BookJsonTest extends FlatSpec {
   "A BookJson" should "should encode and decode an empty book" in {
-    val emptyBook      = Book.init(BookId(1), BookTitle("My Book"))
+    val emptyBook      = Book.init(BookId("One"), BookTitle("My Book"))
     val bookJson       = bookCodecJson.encode(emptyBook)
     val bookJsonString = bookJson.spaces2
     val decodedBookEt  = Parse.decodeEither[Book](bookJsonString)

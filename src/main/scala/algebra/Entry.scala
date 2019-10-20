@@ -1,12 +1,4 @@
-package net
-
-package gesekus
-
-package housekeeping
-
-package algebra
-
-package entry
+package net.gesekus.housekeeping.algebra.entry
 
 import java.time.LocalDateTime
 

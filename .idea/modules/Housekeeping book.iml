@@ -11,7 +11,12 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="sbt: dev.zio:zio-interop-java_2.12:1.1.0.0-RC3:jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="sbt: org.scala-sbt:test-interface:1.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: dev.zio:zio_2.12:1.0.0-RC15:jar" level="project" />
+    <orderEntry type="library" name="sbt: dev.zio:zio-streams_2.12:1.0.0-RC13:jar" level="project" />
+    <orderEntry type="library" name="sbt: dev.zio:zio-stacktracer_2.12:1.0.0-RC15:jar" level="project" />
+    <orderEntry type="library" name="sbt: dev.zio:zio-nio_2.12:0.2.1:jar" level="project" />
+    <orderEntry type="library" name="sbt: dev.zio:zio-interop-java_2.12:1.1.0.0-RC5:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.12.9:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.12.9:jar" level="project" />
     <orderEntry type="library" name="sbt: io.argonaut:argonaut-scalaz_2.12:6.2.3:jar" level="project" />
@@ -19,10 +24,10 @@
     <orderEntry type="library" scope="TEST" name="sbt: org.scalactic:scalactic_2.12:3.0.8:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.scala-lang.modules:scala-xml_2.12:1.2.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scalaz:scalaz-core_2.12:7.2.28:jar" level="project" />
-    <orderEntry type="library" name="sbt: dev.zio:zio_2.12:1.0.0-RC11-1:jar" level="project" />
-    <orderEntry type="library" name="sbt: dev.zio:zio-streams_2.12:1.0.0-RC11-1:jar" level="project" />
-    <orderEntry type="library" name="sbt: dev.zio:zio-stacktracer_2.12:1.0.0-RC11-1:jar" level="project" />
-    <orderEntry type="library" name="sbt: dev.zio:zio-nio_2.12:0.1.2-SNAPSHOT:jar" level="project" />
     <orderEntry type="library" name="sbt: io.argonaut:argonaut_2.12:6.2.3:jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="sbt: dev.zio:zio-streams_2.12:1.0.0-RC15:jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="sbt: dev.zio:zio-test-sbt_2.12:1.0.0-RC15:jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="sbt: dev.zio:zio-test_2.12:1.0.0-RC15:jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="sbt: org.portable-scala:portable-scala-reflect_2.12:0.1.0:jar" level="project" />
   </component>
 </module>

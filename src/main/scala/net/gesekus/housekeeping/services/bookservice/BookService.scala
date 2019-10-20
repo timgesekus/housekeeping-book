@@ -45,6 +45,8 @@ object BookStore extends BookStore {
 
   def toOpLens[A, B](lens: Lens[A, B]): Lens[Option[A], Option[B]] = ???
 
+  def handleEvents(events: Seq[BookEvents]): BookServiceES[Unit] = ???
+  def handleCommand(command: BookCommand): BookServiceES[Seq[BookEvents]] = ???
   private def checkIfCategoriesExist(categoryIds: Set[CategoryId]): BookServiceES[Boolean] = {
     import BookLens.categoriesL
     val stateFunc: BookServiceS[BookServiceStateType[Boolean]] = for {

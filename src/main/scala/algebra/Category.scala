@@ -1,6 +1,6 @@
 package net.gesekus.housekeeping.algebra.category
 
-final case class CategoryId(id: Int)
+final case class CategoryId(id: String)
 final case class CategoryTitle(title: String)
 final case class Category(id: CategoryId, title: CategoryTitle)
 

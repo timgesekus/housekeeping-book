@@ -21,14 +21,20 @@ libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.28"
 //  "org.scalaz"     %% "scalaz-ioeffect-cats" % "2.10.1"
 //)
 
+val zioVersion = "1.0.0-RC15"
+val zioNioVersion = "0.2.1"
+
 libraryDependencies ++= Seq (
-  "dev.zio" %% "zio" % "1.0.0-RC11-1",
-  "dev.zio" %% "zio-nio" % "0.1.2-SNAPSHOT",
+  "dev.zio" %% "zio" % zioVersion ,
+  "dev.zio" %% "zio-nio" % zioNioVersion ,
   "io.argonaut" %% "argonaut-scalaz" % "6.2.3" ,
-  "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+  "org.scalatest" %% "scalatest" % "3.0.8" % "test",
+  "dev.zio" %% "zio-test"     % zioVersion % "test",
+  "dev.zio" %% "zio-test-sbt" % zioVersion % "test"
+
 )
 
-
+testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
 //val derivingVersion = "1.0.0"
 //libraryDependencies ++= Seq(
 //  "org.scalaz" %% "deriving-macro" % derivingVersion % "provided",

@@ -13,7 +13,7 @@ import scalaz._
 
 class BookServiceTest extends FlatSpec {
   val emptyBookTitle = BookTitle("TestBook")
-  val emptyBookId    = BookId(1)
+  val emptyBookId    = BookId("One")
   val state          = BookStore.init(emptyBookId, emptyBookTitle)
 
   val newEntry = entry.Entry(
@@ -25,7 +25,7 @@ class BookServiceTest extends FlatSpec {
   )
   // val newCategory                 = Category(CategoryId("CAT1"), CategoryTitle("Category Title"))
 
-  val newCategory = Category(CategoryId(0), CategoryTitle("First Category"))
+  val newCategory = Category(CategoryId("0"), CategoryTitle("First Category"))
 
   "A BookStore" should "create an empty BookStore" in {
     assert(state.book.id === emptyBookId)
@@ -55,7 +55,7 @@ class BookServiceTest extends FlatSpec {
       entry.EntryTitle("Entry Title"),
       10.0,
       LocalDateTime.now(),
-      Set[CategoryId](CategoryId(3))
+      Set[CategoryId](CategoryId("3"))
     )
     val (newState, addedEntryEt) = addEntry(entryWithUnkownCat).run.run(state)
     addedEntryEt match {
@@ -79,7 +79,7 @@ class BookServiceTest extends FlatSpec {
     def test =
       for {
         addedEntry   <- addEntry(newEntry)
-        changedEntry <- addCategoriesToEntry(addedEntry.id, Set(CategoryId(5)))
+        changedEntry <- addCategoriesToEntry(addedEntry.id, Set(CategoryId("5")))
       } yield changedEntry
 
     val (newSate, changedEntryEt) = test.run.run(state)
@@ -131,7 +131,7 @@ class BookServiceTest extends FlatSpec {
       for {
         _            <- addCategory(newCategory)
         addedEntry   <- addEntry(newEntry)
-        changedEntry <- removeCategoriesFromEntry(addedEntry.id, Set(newCategory.id, CategoryId(2)))
+        changedEntry <- removeCategoriesFromEntry(addedEntry.id, Set(newCategory.id, CategoryId("2")))
       } yield changedEntry
 
     val (stateAfterRemove, changedEntryET) = test.run.run(state)
@@ -151,34 +151,34 @@ class BookServiceTest extends FlatSpec {
       entry.EntryTitle("Entry Title"),
       10.0,
       LocalDateTime.now(),
-      Set[CategoryId](CategoryId(1), CategoryId(2))
+      Set[CategoryId](CategoryId("1"), CategoryId("2"))
     )
     val entry2 = entry.Entry(
       entry.EntryId("Ent2"),
       entry.EntryTitle("Entry Title"),
       10.0,
       LocalDateTime.now(),
-      Set[CategoryId](CategoryId(1), CategoryId(2))
+      Set[CategoryId](CategoryId("1"), CategoryId("2"))
     )
 
     def test =
       for {
-        _               <- addCategory(Category(CategoryId(1), CategoryTitle("First Category")))
-        _               <- addCategory(Category(CategoryId(2), CategoryTitle("Second Category")))
+        _               <- addCategory(Category(CategoryId("1"), CategoryTitle("First Category")))
+        _               <- addCategory(Category(CategoryId("2"), CategoryTitle("Second Category")))
         _               <- addEntry(entry1)
         _               <- addEntry(entry2)
-        removedCategory <- removeCategory(CategoryId(1))
+        removedCategory <- removeCategory(CategoryId("1"))
       } yield removedCategory
 
     val (stateAfterRemove, removeCategoryET) = test.run.run(state)
     removeCategoryET match {
       case \/-(removeCategory) => {
-        assert(removeCategory.id === CategoryId(1))
+        assert(removeCategory.id === CategoryId("1"))
       }
       case -\/(e) => assert(false, e.getStackTraceString)
     }
     assert(stateAfterRemove.book.entries.size == 2)
-    assert(!stateAfterRemove.book.entries(EntryId("Ent1")).categories.contains(CategoryId(1)))
-    assert(!stateAfterRemove.book.entries(EntryId("Ent2")).categories.contains(CategoryId(1)))
+    assert(!stateAfterRemove.book.entries(EntryId("Ent1")).categories.contains(CategoryId("1")))
+    assert(!stateAfterRemove.book.entries(EntryId("Ent2")).categories.contains(CategoryId("1")))
   }
 }
