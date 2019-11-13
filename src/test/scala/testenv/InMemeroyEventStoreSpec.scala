@@ -1,6 +1,5 @@
 package testenv
 
-import zio.test.mock.MockClock.Service.nanoTime
 import zio._
 import zio.console._
 import zio.test.{testM, _}
@@ -21,14 +20,14 @@ object HelloWorldSpec
     extends DefaultRunnableSpec(
       suite("InMemoryEvenStoreSpec")(
         testM("initial snapshot is empty book") {
-          val es = new InMemoryEvenStore
+          val es = new InMemoryEvenStore {}.eventStore
           for {
             snapshot <- es.getSnapShot()
           } yield assert(snapshot.book.id.id, equalTo("Book1"))
         },
         testM("Stored snapshot can be restored") {
           val newCategory = Category(CategoryId("Test"), CategoryTitle("Title"))
-          val es = new InMemoryEvenStore
+          val es = new InMemoryEvenStore {}.eventStore
           for {
             snapshot <- es.getSnapShot()
             newState <- BookStore.addCategory(newCategory).run.exec(snapshot) |> succeed
@@ -38,7 +37,7 @@ object HelloWorldSpec
             assert(newSnapshot.book.categories.size, equalTo(1))
         },
         testM("Events can be replayed") {
-          val es = new InMemoryEvenStore
+          val es = new InMemoryEvenStore {}.eventStore
           val bid = BookId("Book1")
           def createCategroyAdded(i: Int) : CategoryAdded = {
             val c = Category(CategoryId(s"C${i}"), CategoryTitle(s"C${i}Title"))

@@ -1,23 +1,25 @@
 package net.gesekus.housekeeping.services.book
 
-import net.gesekus.housekeeping.algebra.book.{ Book, BookId, BookTitle }
-import net.gesekus.housekeeping.algebra.category.{ Category, CategoryId }
-import net.gesekus.housekeeping.algebra.entry.{ Entry, EntryId }
+import net.gesekus.housekeeping.algebra.book.{Book, BookId, BookTitle}
+import net.gesekus.housekeeping.algebra.category.{Category, CategoryId, CategoryTitle}
+import net.gesekus.housekeeping.algebra.entry.{Entry, EntryId}
 import net.gesekus.housekeeping.algebra.lens._
 import net.gesekus.housekeeping.services.bookservice._
 import scalaz.Scalaz._
 import scalaz._
+import BookServiceES._
+import net.gesekus.housekeeping.services.book.BookStore.checkIfCategoriesExist
 
 sealed class BookCommand
-final case class CreateBook(book: Book)                                                        extends BookCommand
-final case class AddEntry(bookId: BookId, entry: Entry)                                        extends BookCommand
-final case class AddCategory(bookId: BookId, category: Category)                               extends BookCommand
-final case class AddEntryToCategory(bookeId: BookId, entryId: EntryId, categoryId: CategoryId) extends BookCommand
+final case class CreateBook(book: Book) extends BookCommand
+final case class AddEntry(bookId: BookId, entry: Entry) extends BookCommand
+final case class AddCategory(bookId: BookId, category: Category) extends BookCommand
+final case class AddEntryToCategory(bookId: BookId, entryId: EntryId, categoryId: CategoryId) extends BookCommand
 
 sealed class BookEvents
-final case class BookCreated(book: Book)                                                        extends BookEvents
-final case class EntryAdded(bookId: BookId, entry: Entry)                                       extends BookEvents
-final case class CategoryAdded(bookId: BookId, category: Category)                              extends BookEvents
+final case class BookCreated(book: Book) extends BookEvents
+final case class EntryAdded(bookId: BookId, entry: Entry) extends BookEvents
+final case class CategoryAdded(bookId: BookId, category: Category) extends BookEvents
 final case class EntryAddedToCategory(bookId: BookId, entryId: EntryId, categoryId: CategoryId) extends BookEvents
 
 trait BookStore {
@@ -45,13 +47,41 @@ object BookStore extends BookStore {
 
   def toOpLens[A, B](lens: Lens[A, B]): Lens[Option[A], Option[B]] = ???
 
-  def handleEvents(events: Seq[BookEvents]): BookServiceES[Unit] = ???
-  def handleCommand(command: BookCommand): BookServiceES[Seq[BookEvents]] = ???
+  def handleEvent(event: BookEvents): BookServiceES[Unit] =
+    for {
+      _ <- event match {
+        case EntryAdded(bookId, entry)                         => addEntry(entry)
+        case CategoryAdded(bookId, category)                   => addCategory(category)
+        case EntryAddedToCategory(bookId, entryId, categoryId) => addCategoriesToEntry(entryId, Set(categoryId))
+      }
+    } yield ()
+
+  def handleEvents(events: Seq[BookEvents]): BookServiceES[Unit] =
+    liftS(State(state => {
+      val newState = events.foldLeft(state)((state, event) => handleEvent(event).run.exec(state))
+      (newState, ())
+    }))
+
+  def handleCommand(command: BookCommand): BookServiceES[Seq[BookEvents]] =
+    for {
+      events <- command match {
+        case AddEntry(bookId, entry)       => liftV(Seq(EntryAdded(bookId, entry)))
+        case AddCategory(bookId, category) => liftV(Seq(CategoryAdded(bookId, category)))
+        case AddEntryToCategory(bookId, entryId, categoryId) =>
+          for {
+            _ <- checkIfEntriesExists(Set(entryId))
+            _ <- checkIfCategoriesExist(Set(categoryId))
+            events <- Seq(EntryAddedToCategory(bookId, entryId, categoryId)) |> liftV
+          } yield events
+
+      }
+    } yield events
+
   private def checkIfCategoriesExist(categoryIds: Set[CategoryId]): BookServiceES[Boolean] = {
     import BookLens.categoriesL
     val stateFunc: BookServiceS[BookServiceStateType[Boolean]] = for {
       categories <- bookL >=> categoriesL
-      allExist   <- state(categoryIds.forall(categories.contains(_)))
+      allExist <- state(categoryIds.forall(categories.contains(_)))
     } yield if (allExist) true.right else new Exception("At least one category did not exist").left
     BookServiceES.apply(stateFunc)
   }
@@ -59,7 +89,7 @@ object BookStore extends BookStore {
   private def checkIfEntriesExists(entryIds: Set[EntryId]): BookServiceES[Boolean] = {
     import BookLens.entriesL
     val stateFunc: BookServiceS[BookServiceStateType[Boolean]] = for {
-      entries  <- bookL >=> entriesL
+      entries <- bookL >=> entriesL
       allExist <- state(entryIds.forall(entries.contains(_)))
     } yield if (allExist) true.right else new Exception("At least one entry did not exist").left
     BookServiceES.apply(stateFunc)
@@ -75,10 +105,10 @@ object BookStore extends BookStore {
     import BookLens.entriesL
     import BookServiceES.{ liftE, liftS }
     for {
-      _          <- checkIfEntriesExists(Set[EntryId](entryId))
-      _          <- checkIfCategoriesExist(categoryIds)
+      _ <- checkIfEntriesExists(Set[EntryId](entryId))
+      _ <- checkIfCategoriesExist(categoryIds)
       newEntryOp <- (bookL >=> entriesL >=> entryL(entryId)).mods(addCategories(categoryIds).lift) |> liftS
-      newEntry   <- Maybe.fromOption(newEntryOp).toRight[Throwable](new Exception("Cloud nod add entries")) |> liftE
+      newEntry <- Maybe.fromOption(newEntryOp).toRight[Throwable](new Exception("Cloud nod add entries")) |> liftE
     } yield newEntry
   }
 
@@ -87,8 +117,8 @@ object BookStore extends BookStore {
     import BookServiceES._
     for {
       entryCategories <- entry.categories |> liftV
-      _               <- checkIfCategoriesExist(entryCategories)
-      _               <- (bookL >=> entriesL >=> entryL(entry.id)).mods(_ => entry.some) |> liftS
+      _ <- checkIfCategoriesExist(entryCategories)
+      _ <- (bookL >=> entriesL >=> entryL(entry.id)).mods(_ => entry.some) |> liftS
     } yield entry
 
   }
@@ -106,9 +136,9 @@ object BookStore extends BookStore {
     import BookLens.entriesL
     import BookServiceES._
     for {
-      _            <- checkIfEntriesExists(Set(entryId))
+      _ <- checkIfEntriesExists(Set(entryId))
       removedEntry <- (bookL >=> entriesL).at(entryId).st |> liftS
-      _            <- (bookL >=> entriesL -= entryId) |> liftS
+      _ <- (bookL >=> entriesL -= entryId) |> liftS
     } yield removedEntry
   }
 
@@ -116,11 +146,11 @@ object BookStore extends BookStore {
     import BookLens.entriesL
     import BookServiceES._
     for {
-      _          <- checkIfEntriesExists(Set(entryId))
+      _ <- checkIfEntriesExists(Set(entryId))
       newEntryOp <- (bookL >=> entriesL >=> entryL(entryId)).mods(removeCategories(categoryIds).lift) |> liftS
       newEntry <- Maybe
-                   .fromOption(newEntryOp)
-                   .toRight[Throwable](new Exception("Could not remove categories")) |> liftE[Entry]
+        .fromOption(newEntryOp)
+        .toRight[Throwable](new Exception("Could not remove categories")) |> liftE[Entry]
     } yield newEntry
   }
 
@@ -138,10 +168,10 @@ object BookStore extends BookStore {
     import BookLens.categoriesL
     import BookServiceES._
     for {
-      _               <- checkIfCategoriesExist(Set(categoryId))
+      _ <- checkIfCategoriesExist(Set(categoryId))
       removedCategory <- (bookL >=> categoriesL).at(categoryId).st |> liftS
-      _               <- (bookL >=> categoriesL -= categoryId) |> liftS
-      _               <- removeCategoriesFromAllEntries(categoryId)
+      _ <- (bookL >=> categoriesL -= categoryId) |> liftS
+      _ <- removeCategoriesFromAllEntries(categoryId)
     } yield removedCategory
   }
 
