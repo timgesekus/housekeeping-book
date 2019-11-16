@@ -7,10 +7,10 @@ import zio.clock.Clock
 import zio.console._
 import config._
 import net.gesekus.housekeeping.http.Routes
-import net.gesekus.housekeeping.log.{Log, Slf4jLogger}
+import net.gesekus.housekeeping.log.{ Log, Slf4jLogger }
 import net.gesekus.housekeeping.log._
-import net.gesekus.housekeeping.services.bookservice.{BookActor, BookActorQueue, EventPublisher, EventStore}
-import net.gesekus.housekeeping.testenv.{InMemoryEvenStore, InMemoryEventPublisher}
+import net.gesekus.housekeeping.services.bookservice.{ BookActor, BookActorQueue, EventPublisher, EventStore }
+import net.gesekus.housekeeping.testenv.{ InMemoryEvenStore, InMemoryEventPublisher }
 import org.http4s.HttpApp
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -25,8 +25,14 @@ import cats.implicits._
 import net.gesekus.housekeeping.services.book.BookCommand
 import net.gesekus.housekeeping.services.bookservice
 
-trait AppEnvironment extends BookActorQueue with Console with Clock with Slf4jLogger
-with EventStore with EventPublisher with BookActor
+trait AppEnvironment
+    extends BookActorQueue
+    with Console
+    with Clock
+    with Slf4jLogger
+    with EventStore
+    with EventPublisher
+    with BookActor
 
 object Main extends App {
   type AppTask[A] = TaskR[AppEnvironment, A]
@@ -47,9 +53,10 @@ object Main extends App {
         }
     } yield server
 
-  def runQueue[R <: BookActorQueue] (): ZIO[R, Throwable, Unit] = for {
-    _ <- bookservice.run
-  } yield ZIO.unit
+  def runQueue[R <: BookActorQueue](): ZIO[R, Throwable, Unit] =
+    for {
+      _ <- bookservice.run
+    } yield ZIO.unit
 
   def main =
     for {
@@ -64,7 +71,8 @@ object Main extends App {
   def run(args: List[String]) =
     for {
       queue <- Queue.bounded[(BookCommand, Promise[Throwable, Boolean])](100)
-      env = new AppEnvironment with BookActorQueue.Live with Console.Live with Clock.Live with Slf4jLogger with InMemoryEvenStore with InMemoryEventPublisher with BookActor.Live {
+      env = new AppEnvironment with BookActorQueue.Live with Console.Live with Clock.Live with Slf4jLogger
+      with InMemoryEvenStore with InMemoryEventPublisher with BookActor.Live {
         override val commandQueue: Queue[(BookCommand, Promise[Throwable, Boolean])] = queue
       }
       out <- main

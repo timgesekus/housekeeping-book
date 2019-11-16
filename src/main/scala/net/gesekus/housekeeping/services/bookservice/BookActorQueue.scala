@@ -40,34 +40,45 @@ object BookActorQueue {
           value <- promise.await
         } yield value
 
-      def process(message: PendingMessage, state: Ref[BookServiceState]): ZIO[Any, Throwable, Unit] =
+      def stuff(command: BookCommand, state: Ref[BookServiceState]): ZIO[Any, Throwable, Unit] =
         for {
-          _ <- log.info(s"Start processing Message $message")
           s <- state.get
           _ <- log.info(s"State : ${s}")
-          (command, promise) = message
-          events <- bookActor.handleCommand(command, s)
+          events <- bookActor.handleCommand(command, s).foldM (
+            e => ZIO.fail(e),
+            events => ZIO.succeed(events)
+          )
           _ <- log.info(s"Handeled command")
           newState <- bookActor.applyEvents(events, s)
           _ <- log.info(s"Applied events")
           _ <- bookActor.publishAndStoreEvents(events)
           _ <- log.info(s"Published and stored events")
           _ <- state.set(newState)
-          _ <- promise.succeed(true)
         } yield ()
 
-      def runForever (state: Ref[BookServiceState]): ZIO[Any, Throwable, Unit] = for {
-        _ <- log.info("Wait for new message")
-        pendingMessage <- commandQueue.take
-        _ <- log.info("New message")
-        _ <- process(pendingMessage, state)
-      } yield ()
+      def process(message: PendingMessage, state: Ref[BookServiceState]): IO[Nothing, Unit] =
+        for {
+          _ <- log.info(s"Start processing Message $message")
+          (command, promise) = message
+          _ <- stuff (command, state).foldM (
+            e => promise.fail(e),
+            _ => promise.succeed(true)
+          )
+        } yield ()
 
-      override def run(): ZIO[Any,Throwable, Unit] =
+      def runForever(state: Ref[BookServiceState]): ZIO[Any, Throwable, Unit] =
+        for {
+          _ <- log.info("Wait for new message")
+          pendingMessage <- commandQueue.take
+          _ <- log.info("New message")
+          _ <- process(pendingMessage, state)
+        } yield ()
+
+      override def run(): ZIO[Any, Throwable, Unit] =
         for {
           _ <- log.info("BookActorQueue startup")
           initialState <- bookActor.restore
-          state<- Ref.make(initialState)
+          state <- Ref.make(initialState)
           _ <- runForever(state).forever.fork
         } yield ()
     }

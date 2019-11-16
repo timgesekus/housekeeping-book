@@ -18,6 +18,11 @@
         <parameter value="-opt:l:method,inline" />
         <parameter value="-opt-inline-from:scalaz.**" />
       </parameters>
+      <plugins>
+        <plugin path="C:\Users\Tim\.ivy2\cache\org.spire-math\kind-projector_2.12\jars\kind-projector_2.12-0.9.4.jar" />
+        <plugin path="C:\Users\Tim\.ivy2\cache\com.olegpy\better-monadic-for_2.12\jars\better-monadic-for_2.12-0.3.0-M4.jar" />
+        <plugin path="C:\Users\Tim\.ivy2\cache\org.scalamacros\paradise_2.12.8\jars\paradise_2.12.8-2.1.1.jar" />
+      </plugins>
     </profile>
   </component>
 </project>
