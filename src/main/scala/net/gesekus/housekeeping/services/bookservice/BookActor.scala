@@ -1,7 +1,8 @@
 package net.gesekus.housekeeping.services.bookservice
 
-import fs2.io.Watcher.Event
 import net.gesekus.housekeeping.services.book.{BookCommand, BookEvents, BookStore}
+import net.gesekus.housekeeping.services.eventpublisher.EventPublisher
+import net.gesekus.housekeeping.services.eventstore.EventStore
 import scalaz.{-\/, \/-}
 import zio.{Task, ZIO}
 

@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import net.gesekus.housekeeping.algebra.book._
 import net.gesekus.housekeeping.algebra.category.{ Category, CategoryId, CategoryTitle }
 import net.gesekus.housekeeping.algebra.entry.EntryId
-import net.gesekus.housekeeping.algebra.{ entry, _ }
+import net.gesekus.housekeeping.algebra.{ entry }
 import net.gesekus.housekeeping.services.book.BookStore._
 import org.scalatest._
 import scalaz.Scalaz._
@@ -57,7 +57,7 @@ class BookServiceTest extends FlatSpec {
       LocalDateTime.now(),
       Set[CategoryId](CategoryId("3"))
     )
-    val (newState, addedEntryEt) = addEntry(entryWithUnkownCat).run.run(state)
+    val (_, addedEntryEt) = addEntry(entryWithUnkownCat).run.run(state)
     addedEntryEt match {
       case -\/(e) => {
         assert(e.getMessage == "At least one category did not exist")
@@ -82,7 +82,7 @@ class BookServiceTest extends FlatSpec {
         changedEntry <- addCategoriesToEntry(addedEntry.id, Set(CategoryId("5")))
       } yield changedEntry
 
-    val (newSate, changedEntryEt) = test.run.run(state)
+    val (_, changedEntryEt) = test.run.run(state)
     changedEntryEt match {
       case -\/(e) => {
         assert(e.getMessage == "At least one category did not exist")
@@ -99,7 +99,7 @@ class BookServiceTest extends FlatSpec {
         changedEntry <- addCategoriesToEntry(entry.EntryId("NA"), Set())
       } yield changedEntry
 
-    val (newState, changedEntryEt) = test.run.run(state)
+    val (_, changedEntryEt) = test.run.run(state)
     changedEntryEt match {
       case -\/(e) => {
         assert(e.getMessage == "At least one entry did not exist")
@@ -109,7 +109,7 @@ class BookServiceTest extends FlatSpec {
   }
 
   it should "fail on removal of an non existing entry" in {
-    val (stateAfterRemove, removedEntryEt) = removeEntry(EntryId("NA")).run.run(state)
+    val (_, removedEntryEt) = removeEntry(EntryId("NA")).run.run(state)
     removedEntryEt match {
       case -\/(e) => {
         assert(e.getMessage == "At least one entry did not exist")
@@ -175,7 +175,7 @@ class BookServiceTest extends FlatSpec {
       case \/-(removeCategory) => {
         assert(removeCategory.id === CategoryId("1"))
       }
-      case -\/(e) => assert(false, e.getStackTraceString)
+      case -\/(e) => assert(false, e.getStackTrace)
     }
     assert(stateAfterRemove.book.entries.size == 2)
     assert(!stateAfterRemove.book.entries(EntryId("Ent1")).categories.contains(CategoryId("1")))

@@ -1,14 +1,13 @@
 package net.gesekus.housekeeping.services.book
 
 import net.gesekus.housekeeping.algebra.book.{Book, BookId, BookTitle}
-import net.gesekus.housekeeping.algebra.category.{Category, CategoryId, CategoryTitle}
+import net.gesekus.housekeeping.algebra.category.{Category, CategoryId}
 import net.gesekus.housekeeping.algebra.entry.{Entry, EntryId}
 import net.gesekus.housekeeping.algebra.lens._
 import net.gesekus.housekeeping.services.bookservice._
 import scalaz.Scalaz._
 import scalaz._
 import BookServiceES._
-import net.gesekus.housekeeping.services.book.BookStore.checkIfCategoriesExist
 
 sealed class BookCommand
 final case class CreateBook(book: Book) extends BookCommand
@@ -50,9 +49,10 @@ object BookStore extends BookStore {
   def handleEvent(event: BookEvents): BookServiceES[Unit] =
     for {
       _ <- event match {
-        case EntryAdded(bookId, entry)                         => addEntry(entry)
-        case CategoryAdded(bookId, category)                   => addCategory(category)
-        case EntryAddedToCategory(bookId, entryId, categoryId) => addCategoriesToEntry(entryId, Set(categoryId))
+        case EntryAdded(_, entry)                         => addEntry(entry)
+        case CategoryAdded(_, category)                   => addCategory(category)
+        case EntryAddedToCategory(_, entryId, categoryId) => addCategoriesToEntry(entryId, Set(categoryId))
+
       }
     } yield ()
 

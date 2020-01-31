@@ -1,19 +1,10 @@
 package testenv
 
-import zio._
-import zio.console._
 import zio.test.{testM, _}
-import zio.test.Assertion._
-import zio.test.environment._
-import ZIO.succeed
 import net.gesekus.housekeeping.algebra.book.BookId
-import net.gesekus.housekeeping.algebra.entry._
 import net.gesekus.housekeeping.algebra.category.{Category, CategoryId, CategoryTitle}
-import net.gesekus.housekeeping.services.book.{BookStore, CategoryAdded, EntryAdded}
-import net.gesekus.housekeeping.services.bookservice.{BookServiceES, BookServiceState}
-import net.gesekus.housekeeping.testenv.{InMemoryEvenStore, InMemoryEventPublisher, InMemoryEventPublisherImpl}
-import scalaz.Scalaz._
-import scalaz._
+import net.gesekus.housekeeping.services.book.CategoryAdded
+import net.gesekus.housekeeping.services.eventpublisher.InMemoryEventPublisherImpl
 import zio.test.Assertion._
 
 object InMemeroyEventPublisherSpec

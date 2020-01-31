@@ -2,16 +2,12 @@ package net.gesekus.housekeeping.main
 
 import cats.effect.ExitCode
 import pureconfig.ConfigSource
-import zio._
-import zio.clock.Clock
-import zio.console._
 import config._
 import net.gesekus.housekeeping.http.Routes
-import net.gesekus.housekeeping.log.{ Log, Slf4jLogger }
+import net.gesekus.housekeeping.log.Slf4jLogger
 import net.gesekus.housekeeping.log._
-import net.gesekus.housekeeping.services.bookservice.{ BookActor, BookActorQueue, EventPublisher, EventStore }
-import net.gesekus.housekeeping.testenv.{ InMemoryEvenStore, InMemoryEventPublisher }
-import org.http4s.HttpApp
+import net.gesekus.housekeeping.services.bookservice.BookActor
+import org.http4s.Http
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
@@ -23,7 +19,11 @@ import zio.console._
 import zio.interop.catz._
 import cats.implicits._
 import net.gesekus.housekeeping.services.book.BookCommand
-import net.gesekus.housekeeping.services.bookservice
+import net.gesekus.housekeeping.services.bookactorqueue.BookActorQueue
+import net.gesekus.housekeeping.services.{bookactorqueue}
+import net.gesekus.housekeeping.services.eventpublisher.{EventPublisher, InMemoryEventPublisher}
+import net.gesekus.housekeeping.services.eventstore.{EventStore, InMemoryEvenStore}
+
 
 trait AppEnvironment
     extends BookActorQueue
@@ -35,9 +35,8 @@ trait AppEnvironment
     with BookActor
 
 object Main extends App {
-  type AppTask[A] = TaskR[AppEnvironment, A]
-
-  def httpApp = Router[AppTask]("/" -> Routes.testRoutes).orNotFound
+  type AppTask[A] = RIO[AppEnvironment, A]
+  def httpApp: Http[AppTask, AppTask] = Router[AppTask]("/" -> Routes.testRoutes).orNotFound
 
   def runHttp(port: Int) =
     for {
@@ -49,18 +48,19 @@ object Main extends App {
             .withHttpApp(CORS(httpApp))
             .serve
             .compile
-            .drain
+            .drain.as(ExitCode.Success)
         }
     } yield server
 
   def runQueue[R <: BookActorQueue](): ZIO[R, Throwable, Unit] =
     for {
-      _ <- bookservice.run
-    } yield ZIO.unit
+      _ <- bookactorqueue.run
+    } yield ()
 
   def main =
     for {
       cfg <- ZIO.fromEither(ConfigSource.default.load[Config])
+      _ <- info(cfg)
       _ <- info("Loaded Config")
       _ <- runQueue()
       f1 <- runHttp(cfg.appConfig.port).fork
@@ -77,6 +77,6 @@ object Main extends App {
       }
       out <- main
         .provide(env)
-        .fold(_ => 1, _ => 0)
+        .fold(e => {System.err.println(e); 1}, _ => 0)
     } yield out
 }

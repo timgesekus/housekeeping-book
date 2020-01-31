@@ -1,4 +1,5 @@
 package net.gesekus.housekeeping.main
+import cats.Show
 import pureconfig.generic.semiauto._
 import pureconfig.ConfigConvert
 
@@ -11,6 +12,9 @@ object config {
 
   object Config {
     implicit val convert: ConfigConvert[Config] = deriveConvert
+    implicit val show: Show[Config] = new Show[Config] {
+      override def show(t: Config): String = t.toString
+    }
   }
 
   final case class AppConfig(

@@ -2,32 +2,25 @@ package net.gesekus.housekeeping.http
 
 import java.time.LocalDateTime
 
-import io.circe.{ Decoder, Encoder }
-import io.circe.generic.semiauto.{ deriveDecoder, deriveEncoder }
-import zio.{ Task, TaskR, ZIO }
+import zio.RIO
 import org.http4s.dsl.Http4sDsl
 import org.http4s.HttpRoutes
-import io.circe.{ Encoder, Json }
-import org.http4s.EntityEncoder
-import org.http4s.circe._
-import io.circe.{ Decoder, Encoder }
-import org.http4s._
-import org.http4s.circe._
 import cats.implicits._
 import net.gesekus.housekeeping.algebra.book.BookId
-import net.gesekus.housekeeping.algebra.category.{ Category, CategoryId, CategoryTitle }
+import net.gesekus.housekeeping.algebra.category.CategoryId
 import net.gesekus.housekeeping.algebra.entry
-import net.gesekus.housekeeping.algebra.entry.{ Entry, EntryId, EntryTitle }
+import net.gesekus.housekeeping.algebra.entry.{Entry, EntryId}
 import net.gesekus.housekeeping.log.Log
-import net.gesekus.housekeeping.services.book.{ AddCategory, AddEntry, AddEntryToCategory }
-import net.gesekus.housekeeping.services.bookservice._
+import net.gesekus.housekeeping.services.book.{AddEntry, AddEntryToCategory}
+import net.gesekus.housekeeping.services.bookactorqueue._
 import zio.interop.catz._
 import net.gesekus.housekeeping.log._
+import net.gesekus.housekeeping.services.bookactorqueue.BookActorQueue
 
 object Routes {
 
-  def testRoutes[R <: BookActorQueue with Log]: HttpRoutes[TaskR[R, ?]] = {
-    type RoutesTask[A] = TaskR[R, A]
+  def testRoutes[R <: BookActorQueue with Log]: HttpRoutes[RIO[R, ?]] = {
+    type RoutesTask[A] = RIO[R, A]
 
     val dsl: Http4sDsl[RoutesTask] = Http4sDsl[RoutesTask]
     import dsl._

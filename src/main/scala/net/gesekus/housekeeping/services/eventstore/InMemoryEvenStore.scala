@@ -1,13 +1,10 @@
-package net.gesekus.housekeeping.testenv
+package net.gesekus.housekeeping.services.eventstore
 
-import net.gesekus.housekeeping.algebra.book.{ BookId, BookTitle }
-import net.gesekus.housekeeping.services.book.{ BookEvents, BookStore }
+import net.gesekus.housekeeping.algebra.book.{BookId, BookTitle}
+import net.gesekus.housekeeping.services.book.{BookEvents, BookStore}
 import net.gesekus.housekeeping.services.bookservice
-import net.gesekus.housekeeping.services.bookservice.{ BookServiceES, EventStore }
-import zio.Exit.Success
-import zio.{ Task, UIO, ZIO }
-import ZIO.succeed
-
+import zio.{Task, ZIO}
+import ZIO._
 trait InMemoryEvenStore extends EventStore {
   override val eventStore: EventStore.Service[Any] = new EventStore.Service[Any] {
     private var eventIdBeforeSnapshot: Int = 0;
@@ -31,10 +28,6 @@ trait InMemoryEvenStore extends EventStore {
       eventIdBeforeSnapshot = eventSeq.length
       Console.out.println("Event " + eventSeq)
       succeed(eventIdBeforeSnapshot)
-      //succeed(1)
-
     }
   }
 }
-
-

@@ -1,22 +1,17 @@
 package testenv
 
 import zio._
-import zio.console._
 import zio.test.{testM, _}
-import zio.test.Assertion._
-import zio.test.environment._
 import ZIO.succeed
 import net.gesekus.housekeeping.algebra.book.BookId
-import net.gesekus.housekeeping.algebra.entry._
 import net.gesekus.housekeeping.algebra.category.{Category, CategoryId, CategoryTitle}
-import net.gesekus.housekeeping.services.book.{BookStore, CategoryAdded, EntryAdded}
-import net.gesekus.housekeeping.services.bookservice.{BookServiceES, BookServiceState}
-import net.gesekus.housekeeping.testenv.InMemoryEvenStore
+import net.gesekus.housekeeping.services.book.{BookStore, CategoryAdded}
+import net.gesekus.housekeeping.services.eventstore.InMemoryEvenStore
 import scalaz.Scalaz._
 import scalaz._
 import zio.test.Assertion._
 
-object HelloWorldSpec
+object InMemeroyEventStoreSpec
     extends DefaultRunnableSpec(
       suite("InMemoryEvenStoreSpec")(
         testM("initial snapshot is empty book") {
@@ -43,7 +38,6 @@ object HelloWorldSpec
             val c = Category(CategoryId(s"C${i}"), CategoryTitle(s"C${i}Title"))
             CategoryAdded(bid,c)
           }
-          val c1 = Category(CategoryId("C1"), CategoryTitle("C11Title"))
           val e1 = createCategroyAdded(1)
           val e2 = createCategroyAdded(2)
           val e3 = createCategroyAdded(3)

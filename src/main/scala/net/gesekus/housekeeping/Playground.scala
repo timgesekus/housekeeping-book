@@ -1,13 +1,13 @@
 package net.gesekus.housekeeping
 
-import zio.{ App, IO, Task, ZIO }
-import zio.ZIO._
+import zio.{ App, IO, ZIO }
+import ZIO._
 
 object Playground extends App {
 
   def process(): IO[Exception, Int] =
     for {
-      a <- succeed(10)
+      _ <- succeed(10)
       _ <- fail(new IllegalStateException())
       a <- succeed(14)
     } yield a
@@ -17,5 +17,5 @@ object Playground extends App {
       i <- process
     } yield i
 
-  override def run(args: List[String]): ZIO[Playground.Environment, Nothing, Int] = main.fold(e => 1, a => a)
+  override def run(args: List[String]) = main.fold(_ => 1, a => a)
 }

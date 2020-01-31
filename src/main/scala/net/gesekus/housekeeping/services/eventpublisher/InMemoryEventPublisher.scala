@@ -1,8 +1,7 @@
-package net.gesekus.housekeeping.testenv
+package net.gesekus.housekeeping.services.eventpublisher
 
 import net.gesekus.housekeeping.services.book.BookEvents
-import net.gesekus.housekeeping.services.bookservice.EventPublisher
-import zio.{ Task, ZIO }
+import zio.{Task, ZIO}
 
 trait InMemoryEventPublisher extends EventPublisher {
   override val eventPublisher: EventPublisher.Service[Any] = new InMemoryEventPublisherImpl {}
@@ -13,7 +12,7 @@ trait InMemoryEventPublisherImpl extends EventPublisher.Service[Any] {
 
   override def publishEvents(events: Seq[BookEvents]): Task[Unit] = {
     eventSeq = eventSeq ++ events
-    ZIO.succeed()
+    ZIO.unit
   }
 
   def events(): Task[Seq[BookEvents]] = ZIO.succeed(eventSeq)

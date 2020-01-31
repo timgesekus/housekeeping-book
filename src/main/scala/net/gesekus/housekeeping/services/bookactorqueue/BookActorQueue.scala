@@ -1,13 +1,10 @@
-package net.gesekus.housekeeping.services.bookservice
+package net.gesekus.housekeeping.services.bookactorqueue
 
-import net.gesekus.housekeeping.log.Log
-import net.gesekus.housekeeping.services.book.{ BookCommand, BookEvents }
-import zio.console.{ Console, putStrLn }
-import zio.{ DefaultRuntime, IO, Promise, Queue, Ref, Task, UIO, ZIO }
 import cats.implicits._
-import ch.qos.logback.classic.util.DefaultNestedComponentRules
-import net.gesekus.housekeeping.log
-import zio.internal.{ Platform, PlatformLive }
+import net.gesekus.housekeeping.log.Log
+import net.gesekus.housekeeping.services.book.BookCommand
+import net.gesekus.housekeeping.services.bookservice.{BookActor, BookServiceState}
+import zio._
 
 trait BookActorQueue {
   val bookActorQueue: BookActorQueue.Service[Any]

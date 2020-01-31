@@ -1,5 +1,6 @@
 package net.gesekus.housekeeping.services.bookservice
 import net.gesekus.housekeeping.services.book.BookCommand
+import net.gesekus.housekeeping.services.bookactorqueue.BookActorQueue
 import net.gesekus.housekeeping.services.bookservice.BookServiceState
 import zio.{IO, Promise, Queue, Ref, Task, ZIO}
 

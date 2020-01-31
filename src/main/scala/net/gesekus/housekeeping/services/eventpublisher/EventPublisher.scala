@@ -1,4 +1,4 @@
-package net.gesekus.housekeeping.services.bookservice
+package net.gesekus.housekeeping.services.eventpublisher
 
 import net.gesekus.housekeeping.services.book.BookEvents
 import zio.Task
