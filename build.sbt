@@ -2,7 +2,6 @@ ThisBuild / scalaVersion := "2.12.10"
 ThisBuild / organization := "net.gesekus"
 
 //val catsVersion = "2.0.0-RC1" // depends on cats 2.0.0-RC1
-
 resolvers += "Dynamo DB Reporsitory" at "https://s3.eu-central-1.amazonaws.com/dynamodb-local-frankfurt/release"
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.28"
 
@@ -42,13 +41,13 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "zio" % zioVersion,
   "dev.zio" %% "zio-test" % zioTestVersion % "test",
   "dev.zio" %% "zio-test-sbt" % zioTestVersion % "test",
-  "dev.zio" %% "zio-interop-cats" % "2.0.0.0-RC7",
+  "dev.zio" %% "zio-interop-cats" % "2.0.0.0-RC10",
   "dev.zio" %% "zio-delegate" % "0.0.3",
   "com.lihaoyi" %% "sourcecode" % "0.1.7",
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+  "org.scalatest" %% "scalatest" % "3.1.0" % "test",
   "com.gu" %% "scanamo" % "1.0.0-M8",
   "com.gu" %% "scanamo-testkit" % "1.0.0-M8",
-  "com.amazonaws" % "DynamoDBLocal" % "1.11.477",
+  "software.amazon.awssdk" % "dynamodb" % "2.10.56",
   "org.typelevel" %% "cats-core" % "2.0.0",
 
   compilerPlugin("org.spire-math" %% "kind-projector" % "0.9.4"),
@@ -59,7 +58,7 @@ libraryDependencies ++= Seq(
 unmanagedResourceDirectories in Compile += baseDirectory.value / "lib_extra"
 includeFilter in (Compile, unmanagedResourceDirectories):= ".dll,.so"
 
-testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
+testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework"), new TestFramework("org.scalatest.tools.ScalaTestFramework"))
 //val derivingVersion = "1.0.0"
 //libraryDependencies ++= Seq(
 //  "org.scalaz" %% "deriving-macro" % derivingVersion % "provided",
