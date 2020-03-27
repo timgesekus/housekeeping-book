@@ -1,7 +1,6 @@
 package net.gesekus.housekeeping.services.eventstore
 
-import net.gesekus.housekeeping.services.book.BookEvents
-import net.gesekus.housekeeping.services.bookservice.BookServiceState
+import net.gesekus.housekeeping.services.bookrepository.{BookEvents, BookServiceState}
 import zio.Task
 
 trait EventStore {

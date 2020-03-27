@@ -6,7 +6,6 @@ import config._
 import net.gesekus.housekeeping.http.Routes
 import net.gesekus.housekeeping.log.Slf4jLogger
 import net.gesekus.housekeeping.log._
-import net.gesekus.housekeeping.services.bookservice.BookActor
 import org.http4s.Http
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -18,9 +17,9 @@ import zio.clock.Clock
 import zio.console._
 import zio.interop.catz._
 import cats.implicits._
-import net.gesekus.housekeeping.services.book.BookCommand
 import net.gesekus.housekeeping.services.bookactorqueue.BookActorQueue
-import net.gesekus.housekeeping.services.{bookactorqueue}
+import net.gesekus.housekeeping.services.bookactorqueue
+import net.gesekus.housekeeping.services.bookrepository.{BookActor, BookCommand}
 import net.gesekus.housekeeping.services.eventpublisher.{EventPublisher, InMemoryEventPublisher}
 import net.gesekus.housekeeping.services.eventstore.{EventStore, InMemoryEvenStore}
 

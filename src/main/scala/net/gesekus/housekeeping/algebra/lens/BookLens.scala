@@ -13,9 +13,14 @@ object BookLens {
   def entriesL =
     Lens.lensu[Book, Map[EntryId, Entry]]((entries, newVal) => entries.copy(entries = newVal), _.entries)
 
+  def entryL(entryId: EntryId) = Lens.mapVLens[EntryId, Entry](entryId)
+
   def categoriesL =
     Lens.lensu[Book, Map[CategoryId, Category]](
       (categories, newVal) => categories.copy(categories = newVal),
       _.categories
     )
+
+  def categoryL(categoryId: CategoryId) = Lens.mapVLens[CategoryId, Category](categoryId)
+
 }

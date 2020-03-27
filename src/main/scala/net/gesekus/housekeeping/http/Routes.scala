@@ -11,7 +11,7 @@ import net.gesekus.housekeeping.algebra.category.CategoryId
 import net.gesekus.housekeeping.algebra.entry
 import net.gesekus.housekeeping.algebra.entry.{Entry, EntryId}
 import net.gesekus.housekeeping.log.Log
-import net.gesekus.housekeeping.services.book.{AddEntry, AddEntryToCategory}
+import net.gesekus.housekeeping.services.bookrepository.{AddEntry, AddEntryToCategory}
 import net.gesekus.housekeeping.services.bookactorqueue._
 import zio.interop.catz._
 import net.gesekus.housekeeping.log._

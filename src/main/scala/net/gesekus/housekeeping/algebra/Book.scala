@@ -4,6 +4,7 @@ import net.gesekus.housekeeping.algebra.category.{ Category, CategoryId }
 import net.gesekus.housekeeping.algebra.entry.{ Entry, EntryId }
 import scalaz.{ Maybe, NonEmptyList }
 import zio.Task
+import scalaz.`package`.State
 
 final case class BookId(id: String)
 final case class BookTitle(title: String)
@@ -17,6 +18,3 @@ trait Books {
   def deleteBook(id: BookId): Task[Book]
 }
 
-object Book {
-  def init(id: BookId, title: BookTitle) = Book(id, title, Map[EntryId, Entry](), Map[CategoryId, Category]())
-}

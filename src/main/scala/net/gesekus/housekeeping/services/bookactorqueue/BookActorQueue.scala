@@ -2,8 +2,8 @@ package net.gesekus.housekeeping.services.bookactorqueue
 
 import cats.implicits._
 import net.gesekus.housekeeping.log.Log
-import net.gesekus.housekeeping.services.book.BookCommand
-import net.gesekus.housekeeping.services.bookservice.{BookActor, BookServiceState}
+import net.gesekus.housekeeping.services.bookrepository.BookCommand
+import net.gesekus.housekeeping.services.bookrepository.{BookActor, BookServiceState}
 import zio._
 
 trait BookActorQueue {

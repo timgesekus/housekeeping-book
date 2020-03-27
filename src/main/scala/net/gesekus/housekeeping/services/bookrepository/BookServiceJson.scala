@@ -2,19 +2,10 @@ package net.gesekus.housekeeping.services.bookservice
 
 import argonaut._
 import Argonaut._
-import net.gesekus.housekeeping.services.book.{
-  AddCategory,
-  AddEntry,
-  AddEntryToCategory,
-  BookCreated,
-  CategoryAdded,
-  CreateBook,
-  EntryAdded,
-  EntryAddedToCategory
-}
 import net.gesekus.housekeeping.algebra.json.BookJson._
 import net.gesekus.housekeeping.algebra.json.EntryJson._
 import net.gesekus.housekeeping.algebra.json.CategoryJson._
+import net.gesekus.housekeeping.services.bookrepository._
 
 object BookServiceJson {
   // Commands
@@ -42,5 +33,4 @@ object BookServiceJson {
 
   implicit def EntryAddedToCategoryCodec: CodecJson[EntryAddedToCategory] =
     casecodec3(EntryAddedToCategory.apply, EntryAddedToCategory.unapply)("bookid", "entryId", "categoryId")
-
 }
